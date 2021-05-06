@@ -10,7 +10,7 @@ from .views import (
 					remove_single_item_from_cart,
 					PaymentView,
                     AddCouponView,
-                    RefundRequestView,
+                    RefundRequestView
 					)
 
 app_name = 'core'

@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView, View
-from .forms import CheckoutForm, CouponForm, RefundForm
+from .forms import CheckoutForm, CouponForm, RefundForm, PaymentForm
 from .models import Item, OrderItem, Order, Address, Payment, Coupon, Refund, UserProfile
 from django.shortcuts import redirect
 from django.utils import timezone
@@ -230,13 +230,14 @@ class PaymentView(View):
 		if order.billing_address:
 			context = {
 				'order':order,
-				'DISPLAY_COUPON_FORM': False
-				} 
+				'DISPLAY_COUPON_FORM': False,
+				'STRIPE_PUBLIC_KEY' : settings.STRIPE_PUBLIC_KEY
+			} 
 
 			userprofile = self.request.user.userprofile
 			if userprofile.one_click_purchasing:
 				#fetch the users card list
-				cards = stripe.Customer.list_souces(
+				cards = stripe.Customer.list_sources(
 					userprofile.stripe_customer_id,
 					limit = 3,
 					object = 'card'
@@ -367,7 +368,7 @@ class PaymentView(View):
 #Home View
 class HomeView(ListView):
     model = Item
-    paginate_by = 10
+    paginate_by = 8
     template_name = 'home.html'
 
 # CART

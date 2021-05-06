@@ -1,7 +1,7 @@
                                        #THIS ALL GONNA SHOW UP IN ADMIN PAGE.
 
                                        
-
+from django.db.models.signals import post_save
 from django.conf import settings #bcz auth is in settings.
 from django.db import models
 from django.shortcuts import reverse
@@ -13,7 +13,10 @@ from django.shortcuts import reverse
 
 CATEGORY_CHOICES=(('S', 'Shirt'),
 				  ('SW', 'Sportswear'),
-				  ('OW', 'Outwear'))
+				  ('OW', 'Outwear'),
+				  ('MP', 'Cell Phone'),
+				  ('TV', 'Television'),
+				  ('EC', 'Electronics'))
 
 LABEL_CHOICES = (('P', 'primary'),
 				 ('S', 'secondary'),
@@ -27,7 +30,7 @@ ADDRESS_CHOICES = (('B', 'Billing'),
 class UserProfile(models.Model):
 	user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete = models.CASCADE)
 	stripe_customer_id = models.CharField(max_length = 50, blank=True, null=True)
-	one_click_purchasing = models.BooleanField()
+	one_click_purchasing = models.BooleanField(default=False)
 
 	def __str__(self):
 		return self.user.username
@@ -67,7 +70,10 @@ class OrderItem(models.Model):
 	ordered = models.BooleanField(default = False)
 	item = models.ForeignKey(Item, on_delete=models.CASCADE) #Linking item with Item
 	quantity = models.IntegerField(default=1) #when we call add_to_cart function then for adding item we need quantity field.
-			
+
+	def __str__(self):
+		return f"{self.quantity} of {self.item.title}"
+
 	def get_total_item_price(self):
 		return self.quantity * self.item.price
 
@@ -82,8 +88,7 @@ class OrderItem(models.Model):
 			return self.get_total_discount_item_price()
 		return self.get_total_item_price()
 
-def __str__(self):
-	return self.title
+
 
 class Order(models.Model):  # You can basically view this as Cart.
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE) #Just taking user
@@ -180,4 +185,4 @@ def userprofile_reciever(sender, instance, created, *args, **kwargs):
 	if created:
 		userprofile = UserProfile.objects.create(user=instance)
 
-#post_save.connect(userprofile_reciever, sender = settings.AUTH_USER_MODEL)
+post_save.connect(userprofile_reciever, sender = settings.AUTH_USER_MODEL)

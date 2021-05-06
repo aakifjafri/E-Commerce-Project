@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Item, OrderItem, Order, Payment, Coupon, Refund, Address
+from .models import Item, OrderItem, Order, Payment, Coupon, Refund, Address, UserProfile
 
 #making refund_requested=False and refund_granted=True
 def make_refund_accepted(Modeladmin, request, queryset):
@@ -78,3 +78,4 @@ admin.site.register(Payment)
 admin.site.register(Coupon)
 admin.site.register(Refund)
 admin.site.register(Address, AddressAdmin)
+admin.site.register(UserProfile)
